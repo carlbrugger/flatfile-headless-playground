@@ -1,2 +1,2 @@
-export * from './sheets/getting_started'
+export * from './sheets/contacts'
 export * from './sheets/field_types'

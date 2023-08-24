@@ -8,6 +8,9 @@ import { ExcelExtractor } from '@flatfile/plugin-xlsx-extractor'
 import { ZipExtractor } from '@flatfile/plugin-zip-extractor'
 import { TSVExtractor } from '@flatfile/plugin-tsv-extractor'
 import { DelimiterExtractor } from '@flatfile/plugin-delimiter-extractor'
+import { dedupePlugin } from '@flatfile/plugin-dedupe'
+
+import { contactsSheet } from './blueprints'
 
 export default async function (listener: FlatfileListener) {
   listener.use(JSONExtractor())
@@ -18,15 +21,27 @@ export default async function (listener: FlatfileListener) {
   listener.use(TSVExtractor())
   // listener.use(DelimiterExtractor('tsv', { delimiter: '\t' }))
   listener.use(DelimiterExtractor('txt', { delimiter: '~' }))
-  listener.use(DelimiterExtractor('semicolin', { delimiter: ';' }))
+  listener.use(
+    DelimiterExtractor('semicolin', {
+      delimiter: ';',
+      transform: (v) => v.toUpperCase(), // <-- transform is a custom function run during extraction
+    })
+  )
   listener.use(ZipExtractor())
+
+  listener.use(
+    dedupePlugin('dedupeEmail', {
+      on: 'email',
+      keep: 'last',
+    })
+  )
 
   listener.filter({ job: 'space:configure' }, (configure) => {
     configure.on(
       'job:ready',
       async ({ context: { spaceId, environmentId, jobId } }) => {
         await api.jobs.ack(jobId, {
-          info: 'Getting started.',
+          info: 'Configuring space...',
           progress: 10,
         })
 
@@ -35,39 +50,12 @@ export default async function (listener: FlatfileListener) {
           environmentId,
           name: 'All Data',
           labels: ['pinned'],
-          sheets: [
-            {
-              name: 'Contacts',
-              slug: 'contacts',
-              fields: [
-                {
-                  key: 'firstName',
-                  type: 'string',
-                  label: 'First Name',
-                },
-                {
-                  key: 'lastName',
-                  type: 'string',
-                  label: 'Last Name',
-                },
-                {
-                  key: 'email',
-                  type: 'string',
-                  label: 'Primary Email',
-                },
-                {
-                  key: 'email2',
-                  type: 'string',
-                  label: 'Secondary Email',
-                },
-              ],
-            },
-          ],
+          sheets: [contactsSheet],
         })
 
         await api.jobs.complete(jobId, {
           outcome: {
-            message: 'This job is now complete.',
+            message: 'Space configured successfully!',
           },
         })
       }

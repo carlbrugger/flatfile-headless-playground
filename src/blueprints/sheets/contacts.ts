@@ -1,8 +1,8 @@
 import { Flatfile } from '@flatfile/api'
 
-export const gettingStartedSheet: Flatfile.SheetConfig = {
-  name: 'Getting Started',
-  slug: 'getting_started',
+export const contactsSheet: Flatfile.SheetConfig = {
+  name: 'Contacts',
+  slug: 'contacts',
   fields: [
     {
       key: 'firstName',
