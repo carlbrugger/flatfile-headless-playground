@@ -17,7 +17,17 @@ export const contactsSheet: Flatfile.SheetConfig = {
     {
       key: 'email',
       type: 'string',
-      label: 'Primary Email',
+      label: 'Email',
+    },
+    {
+      key: 'company',
+      type: 'reference',
+      label: 'Company',
+      config: {
+        key: 'email',
+        ref: 'companies',
+        relationship: 'has-one',
+      },
     },
   ],
   actions: [

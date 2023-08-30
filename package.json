@@ -19,6 +19,7 @@
     "@flatfile/plugin-json-extractor": "^0.4.2",
     "@flatfile/plugin-psv-extractor": "^1.3.4",
     "@flatfile/plugin-record-hook": "^1.0.1",
+    "@flatfile/plugin-space-configure": "^0.0.0",
     "@flatfile/plugin-tsv-extractor": "^1.2.4",
     "@flatfile/plugin-xlsx-extractor": "^1.5.0",
     "@flatfile/plugin-xml-extractor": "^0.3.0",
