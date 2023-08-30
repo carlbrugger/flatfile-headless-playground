@@ -13,6 +13,11 @@ import { dedupePlugin } from '@flatfile/plugin-dedupe'
 import { contactsSheet } from './blueprints'
 
 export default async function (listener: FlatfileListener) {
+  listener.on('**', (event) => {
+    console.log(event.topic)
+  })
+
+  // Extractors
   listener.use(JSONExtractor())
   listener.use(ExcelExtractor())
   listener.use(XMLExtractor())
