@@ -1,35 +1,8 @@
 import { Flatfile } from '@flatfile/api'
-import type { FlatfileListener } from '@flatfile/listener'
-import { configureSpace } from '@flatfile/plugin-space-configure'
-import { ExcelExtractor } from '@flatfile/plugin-xlsx-extractor'
 
-export default async function (listener: FlatfileListener) {
-  listener.use(ExcelExtractor({ chunkSize: 10000, parallel: 2 }))
-  listener.use(
-    configureSpace({
-      workbooks: [
-        {
-          name: 'Workbook One',
-          sheets: [sheet],
-          actions: [
-            {
-              operation: 'submitActionFg',
-              mode: 'foreground',
-              label: 'Submit data',
-              type: 'string',
-              description: 'Submit this data to a webhook.',
-              primary: true,
-            },
-          ],
-        },
-      ],
-    })
-  )
-}
-
-export const sheet: Flatfile.SheetConfig = {
-  name: 'Sheet',
-  slug: 'sheet',
+export const xLargeExcelSheet: Flatfile.SheetConfig = {
+  name: 'xLarge Excel',
+  slug: 'xlarge-excel',
   fields: [
     {
       key: 'serial',

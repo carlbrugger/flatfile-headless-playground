@@ -15,6 +15,6 @@
     "@flatfile/javascript": "^0.1.5",
     "@flatfile/listener": "^0.3.15",
     "@flatfile/plugin-space-configure": "^0.1.0",
-    "@flatfile/plugin-xlsx-extractor": "^1.7.0"
+    "@flatfile/plugin-xlsx-extractor": "^1.7.1"
   }
 }
