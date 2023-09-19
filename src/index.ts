@@ -4,7 +4,7 @@ import { configureSpace } from '@flatfile/plugin-space-configure'
 import { ExcelExtractor } from '@flatfile/plugin-xlsx-extractor'
 
 export default async function (listener: FlatfileListener) {
-  listener.use(ExcelExtractor({ chunkSize: 10000, parallel: 2 }))
+  listener.use(ExcelExtractor({ chunkSize: 10_000, parallel: 2 }))
   listener.use(
     configureSpace({
       workbooks: [
