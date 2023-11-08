@@ -1,90 +1,22 @@
-import { Flatfile } from '@flatfile/api'
-import type { FlatfileListener } from '@flatfile/listener'
-import { configureSpace } from '@flatfile/plugin-space-configure'
-import { ExcelExtractor } from '@flatfile/plugin-xlsx-extractor'
+import type { FlatfileEvent, FlatfileListener } from '@flatfile/listener'
+import { FlatfileRecord, recordHook } from '@flatfile/plugin-record-hook'
 
 export default async function (listener: FlatfileListener) {
-  listener.use(ExcelExtractor({ chunkSize: 10_000, parallel: 2 }))
   listener.use(
-    configureSpace({
-      workbooks: [
-        {
-          name: 'Workbook One',
-          sheets: [sheet],
-          actions: [
-            {
-              operation: 'submitActionFg',
-              mode: 'foreground',
-              label: 'Submit data',
-              type: 'string',
-              description: 'Submit this data to a webhook.',
-              primary: true,
-            },
-          ],
-        },
-      ],
+    recordHook('contacts', (r: FlatfileRecord, event: FlatfileEvent) => {
+      const email = r.get('email') as string
+      if (!email) {
+        console.log('Email is required')
+        r.addError('email', 'Email is required')
+      }
+
+      const validEmailAddress = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      if (email !== null && !validEmailAddress.test(email)) {
+        console.log('Invalid email address')
+        r.addError('email', 'Invalid email address')
+      }
+
+      return r
     })
   )
-}
-
-export const sheet: Flatfile.SheetConfig = {
-  name: 'Sheet',
-  slug: 'sheet',
-  fields: [
-    {
-      key: 'serial',
-      type: 'string',
-      label: 'Serial',
-    },
-    {
-      key: 'productName',
-      type: 'string',
-      label: 'Product Name',
-    },
-    {
-      key: 'office',
-      type: 'string',
-      label: 'Office',
-    },
-    {
-      key: 'creation',
-      type: 'string',
-      label: 'Creation',
-    },
-    {
-      key: 'department',
-      type: 'string',
-      label: 'Department',
-    },
-    {
-      key: 'color',
-      type: 'string',
-      label: 'Color',
-    },
-    {
-      key: 'size',
-      type: 'string',
-      label: 'Size',
-    },
-    {
-      key: 'quality',
-      type: 'string',
-      label: 'Quality',
-    },
-    {
-      key: 'packSize',
-      type: 'string',
-      label: 'Pack Size',
-    },
-    {
-      key: 'msrpp',
-      type: 'string',
-      label: 'MSRPP',
-    },
-    {
-      key: 'vat',
-      type: 'string',
-      label: 'VAT',
-    },
-  ],
 }

@@ -17,7 +17,7 @@ export const contactsSheet: Flatfile.SheetConfig = {
     {
       key: 'email',
       type: 'string',
-      label: 'Primary Email',
+      label: 'Email',
     },
   ],
   actions: [
