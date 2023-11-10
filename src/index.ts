@@ -6,7 +6,7 @@ import { configureSpace } from '@flatfile/plugin-space-configure'
 export default async function (listener: FlatfileListener) {
   listener.use(JSONExtractor())
   listener.on(
-    'job:ready',
+    'job:completed',
     { operation: 'extract*' },
     async (event: FlatfileEvent) => {
       const { fileId } = event.context
