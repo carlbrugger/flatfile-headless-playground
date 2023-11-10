@@ -7,11 +7,15 @@
     "start": "npx flatfile@latest develop",
     "deploy": "npx flatfile@latest deploy"
   },
+  "engines": {
+    "node": ">= 18"
+  },
   "author": "Carl Brugger",
   "license": "ISC",
   "dependencies": {
     "@flatfile/api": "^1.5.37",
     "@flatfile/listener": "^0.3.16",
-    "@flatfile/plugin-record-hook": "^1.1.11"
+    "@flatfile/plugin-json-extractor": "^0.6.9",
+    "@flatfile/plugin-space-configure": "^0.1.6"
   }
 }
