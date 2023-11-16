@@ -2,8 +2,8 @@
   "compilerOptions": {
     "esModuleInterop": true,
     "isolatedModules": true,
-    "lib": [ "es2017", "dom" ],
-    "target": "es2017",
+    "lib": [ "es2015", "dom" ],
+    "target": "es2015",
     "moduleResolution": "node"
   }
 }
