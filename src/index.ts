@@ -5,6 +5,7 @@ import {
   PartialWorkbookConfig,
   configureSpaceWithJsonSchema,
 } from '@flatfile/plugin-convert-json-schema'
+import { configureSpaceWithYamlSchema } from '@flatfile/plugin-convert-yaml-schema'
 
 export default function (listener: FlatfileListener) {
   const workbookActions: Flatfile.Action[] = [
@@ -47,7 +48,8 @@ export default function (listener: FlatfileListener) {
     await tick(80, 'Document created')
   }
 
-  listener.use(
+  listener.namespace(
+    ['space:json-schema'],
     configureSpaceWithJsonSchema(
       [
         {
@@ -64,6 +66,32 @@ export default function (listener: FlatfileListener) {
       {
         workbookConfig: {
           name: 'Custom JSON Schema Workbook Name',
+          actions: workbookActions,
+        } as PartialWorkbookConfig,
+        debug: true,
+      },
+      callback
+    )
+  )
+
+  listener.namespace(
+    ['space:yaml-schema'],
+    configureSpaceWithYamlSchema(
+      [
+        {
+          sourceUrl:
+            'https://raw.githubusercontent.com/FlatFilers/flatfile-docs-kitchen-sink/main/typescript/fetch-schemas/example-schemas/yaml/person.yml',
+          name: 'Custom Person Sheet Name',
+          actions: sheetActions,
+        },
+        {
+          sourceUrl:
+            'https://raw.githubusercontent.com/FlatFilers/flatfile-docs-kitchen-sink/main/typescript/fetch-schemas/example-schemas/yaml/product.yml',
+        },
+      ] as ModelToSheetConfig[],
+      {
+        workbookConfig: {
+          name: 'Custom YAML Schema Workbook Name',
           actions: workbookActions,
         } as PartialWorkbookConfig,
         debug: true,

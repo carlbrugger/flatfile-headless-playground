@@ -12,6 +12,7 @@
   "dependencies": {
     "@flatfile/api": "^1.5.37",
     "@flatfile/listener": "^0.3.16",
-    "@flatfile/plugin-convert-json-schema": "^0.0.4"
+    "@flatfile/plugin-convert-json-schema": "^0.0.4",
+    "@flatfile/plugin-convert-yaml-schema": "^0.0.2"
   }
 }
