@@ -20,6 +20,7 @@ export default function (listener: FlatfileListener) {
             {
               name: 'Contacts',
               slug: 'contacts',
+              allowAdditionalFields: true,
               fields: [
                 {
                   key: 'firstName',
