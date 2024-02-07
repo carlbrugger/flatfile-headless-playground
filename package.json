@@ -4,14 +4,13 @@
   "description": "",
   "main": "src/index.ts",
   "scripts": {
-    "start": "npx flatfile@latest develop",
-    "deploy": "npx flatfile@latest deploy"
+    "dev": "node --inspect node_modules/.bin/flatfile develop",
+    "deploy": "flatfile deploy"
   },
   "author": "Carl Brugger",
   "license": "ISC",
   "dependencies": {
-    "@flatfile/api": "^1.5.37",
-    "@flatfile/listener": "^0.3.16",
-    "@flatfile/plugin-record-hook": "^1.1.11"
+    "@flatfile/listener": "^1.0.0",
+    "flatfile": "^3.5.14"
   }
 }
