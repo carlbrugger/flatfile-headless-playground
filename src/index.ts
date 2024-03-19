@@ -1,88 +1,87 @@
+import api from '@flatfile/api'
 import type { FlatfileEvent, FlatfileListener } from '@flatfile/listener'
+import { configureSpace } from '@flatfile/plugin-space-configure'
+import { processRecords } from '@flatfile/util-common'
+import { processRecords as sdkProcessRecords } from '@flatfile/util-common-sdk'
+import { oneHundredSheet } from './blueprints'
 
 export default async function (listener: FlatfileListener) {
-  listener.on('**', (event: FlatfileEvent) => {
-    console.log(event.target)
-  })
+  listener.on(
+    'job:ready',
+    { operation: 'processRecords' },
+    async (event: FlatfileEvent) => {
+      const { jobId, sheetId } = event.context
+      try {
+        await api.jobs.ack(jobId, { info: 'Processing records' })
 
-  // Plugin example:
-  // listener.use(
-  //   bulkRecordHook(
-  //     'oneHundred',
-  //     async (records: FlatfileRecord[]) => {
-  //       for (const record of records) {
-  //         const email = record.get('email') as string
-  //         const validEmailAddress = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  //         if (!validEmailAddress.test(email)) {
-  //           record.addError('email', 'Error: Invalid email address')
-  //         }
-  //       }
-  //       return records
-  //     },
-  //     { debug: true }
-  //   )
-  // )
+        // Time processRecords
+        console.time('processRecords')
+        await processRecords(
+          sheetId,
+          async (records, pageNumber, totalPageCount) => {
+            console.log(
+              `Processing ${records.length} records on page ${pageNumber} of ${totalPageCount}`
+            )
+            await api.jobs.ack(jobId, {
+              info: `Processing ${records.length} records on page ${pageNumber} of ${totalPageCount}`,
+              progress: (pageNumber / totalPageCount) * 100,
+            })
+          }
+        )
+        console.timeEnd('processRecords')
 
-  // Namespace example:
-  // listener.namespace(
-  //   ['space:getting-started'],
-  //   configureSpace(
-  //     {
-  //       workbooks: [
-  //         {
-  //           name: 'Getting Started',
-  //           sheets: [contactsSheet, fieldTypesSheet],
-  //           // settings: {
-  //           //   trackChanges: true,
-  //           // },
-  //           actions: [
-  //             {
-  //               operation: 'submitActionFg',
-  //               mode: 'foreground',
-  //               label: 'Submit data',
-  //               type: 'string',
-  //               description: 'Submit this data to a webhook.',
-  //               primary: true,
-  //             },
-  //             {
-  //               operation: 'downloadWorkbook',
-  //               mode: 'foreground',
-  //               label: 'Download Workbook',
-  //               description: 'Downloads Excel Workbook of Data',
-  //             },
-  //           ],
-  //         },
-  //       ],
-  //       space: {
-  //         metadata: {
-  //           theme: {
-  //             root: {
-  //               primaryColor: 'black',
-  //             },
-  //             sidebar: {
-  //               logo: 'https://images.ctfassets.net/hjneo4qi4goj/33l3kWmPd9vgl1WH3m9Jsq/13861635730a1b8af383a8be8932f1d6/flatfile-black.svg',
-  //             },
-  //           },
-  //         },
-  //       },
-  //       documents: [
-  //         {
-  //           title: 'Welcome',
-  //           body: `<div>
-  //           <h1 style="margin-bottom: 36px;">Welcome!</h1>
-  //           <h2 style="margin-top: 0px; margin-bottom: 12px;">To get started, follow these steps:</h2>
-  //           <h2 style="margin-bottom: 0px;">1. Step One</h2>
-  //           <p style="margin-top: 0px; margin-bottom: 8px;">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
-  //           <h2 style="margin-bottom: 0px;">2. Step Two</h2>
-  //           <p style="margin-top: 0px; margin-bottom: 8px;">Consectetur libero id faucibus nisl tincidunt eget. Pellentesque elit eget gravida cum sociis natoque penatibus et. Tempor orci eu lobortis elementum nibh.</p>
-  //           </div>`,
-  //         },
-  //       ],
-  //     },
-  //     async (event, workbookIds, tick) => {
-  //       const { spaceId } = event.context
-  //       console.log('Space configured', { spaceId, workbookIds })
-  //     }
-  //   )
-  // )
+        await api.jobs.complete(jobId, { info: 'Completed processing records' })
+      } catch (e) {
+        console.error(e)
+        await api.jobs.fail(jobId, { info: 'Failed processing records' })
+      }
+    }
+  )
+
+  listener.on(
+    'job:ready',
+    { operation: 'sdkProcessRecords' },
+    async (event: FlatfileEvent) => {
+      const { jobId, sheetId } = event.context
+      try {
+        await api.jobs.ack(jobId, { info: 'Processing records' })
+
+        // This is done in the fetch version of the processRecords function and is passed to the callback
+        const {
+          data: { counts },
+        } = await api.sheets.getRecordCounts(sheetId)
+        const pageSize = 10_000
+        const totalPageCount = Math.ceil(counts.total / pageSize) || 1
+
+        // Time processRecords
+        console.time('processRecords')
+        await sdkProcessRecords(sheetId, async (records, pageNumber) => {
+          console.log(
+            `Processing ${records.length} records on page ${pageNumber} of ${totalPageCount}`
+          )
+          await api.jobs.ack(jobId, {
+            info: `Processing ${records.length} records on page ${pageNumber} of ${totalPageCount}`,
+            progress: (pageNumber / totalPageCount) * 100,
+          })
+        })
+        console.timeEnd('processRecords')
+
+        await api.jobs.complete(jobId, { info: 'Completed processing records' })
+      } catch (e) {
+        console.error(e)
+        await api.jobs.fail(jobId, { info: 'Failed processing records' })
+      }
+    }
+  )
+
+  listener.use(
+    configureSpace({
+      workbooks: [
+        {
+          name: 'One Hundred Workbook',
+          sheets: [oneHundredSheet],
+        },
+      ],
+    })
+  )
 }

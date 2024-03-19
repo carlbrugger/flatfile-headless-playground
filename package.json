@@ -10,7 +10,11 @@
   "author": "Carl Brugger",
   "license": "ISC",
   "dependencies": {
-    "@flatfile/listener": "^1.0.0",
-    "flatfile": "^3.5.14"
+    "@flatfile/api": "^1.7.8",
+    "@flatfile/listener": "^1.0.1",
+    "@flatfile/plugin-space-configure": "^0.3.2",
+    "@flatfile/util-common": "1.0.1",
+    "@flatfile/util-common-sdk": "npm:@flatfile/util-common@1.0.0",
+    "flatfile": "^3.6.2"
   }
 }
