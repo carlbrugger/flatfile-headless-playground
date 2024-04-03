@@ -9,7 +9,7 @@ export const contactsSheet: Flatfile.SheetConfig = {
       key: 'firstName',
       type: 'string',
       label: 'First Name',
-      constraints: [{ type: 'required' }, { type: 'unique' }],
+      constraints: [{ type: 'required' }],
     },
     {
       key: 'lastName',
