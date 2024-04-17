@@ -1,88 +1,123 @@
+import api from '@flatfile/api'
 import type { FlatfileEvent, FlatfileListener } from '@flatfile/listener'
+import { getRecordsRaw } from '@flatfile/util-common'
 
-export default async function (listener: FlatfileListener) {
-  listener.on('**', (event: FlatfileEvent) => {
-    console.log(event.target)
-  })
+const RECORD_PAGE_SIZE = 5_000
+const url = 'https://webhook.site/a5785fb5-ce40-4170-ab13-42e4018ea7f8'
 
-  // Plugin example:
-  // listener.use(
-  //   bulkRecordHook(
-  //     'oneHundred',
-  //     async (records: FlatfileRecord[]) => {
-  //       for (const record of records) {
-  //         const email = record.get('email') as string
-  //         const validEmailAddress = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  //         if (!validEmailAddress.test(email)) {
-  //           record.addError('email', 'Error: Invalid email address')
-  //         }
-  //       }
-  //       return records
-  //     },
-  //     { debug: true }
-  //   )
-  // )
+export default function (listener: FlatfileListener) {
+  listener.on(
+    'job:ready',
+    { job: 'workbook:submitActionFg', isPart: false },
+    async (event: FlatfileEvent) => {
+      const { jobId, workbookId } = event.context
 
-  // Namespace example:
-  // listener.namespace(
-  //   ['space:getting-started'],
-  //   configureSpace(
-  //     {
-  //       workbooks: [
-  //         {
-  //           name: 'Getting Started',
-  //           sheets: [contactsSheet, fieldTypesSheet],
-  //           // settings: {
-  //           //   trackChanges: true,
-  //           // },
-  //           actions: [
-  //             {
-  //               operation: 'submitActionFg',
-  //               mode: 'foreground',
-  //               label: 'Submit data',
-  //               type: 'string',
-  //               description: 'Submit this data to a webhook.',
-  //               primary: true,
-  //             },
-  //             {
-  //               operation: 'downloadWorkbook',
-  //               mode: 'foreground',
-  //               label: 'Download Workbook',
-  //               description: 'Downloads Excel Workbook of Data',
-  //             },
-  //           ],
-  //         },
-  //       ],
-  //       space: {
-  //         metadata: {
-  //           theme: {
-  //             root: {
-  //               primaryColor: 'black',
-  //             },
-  //             sidebar: {
-  //               logo: 'https://images.ctfassets.net/hjneo4qi4goj/33l3kWmPd9vgl1WH3m9Jsq/13861635730a1b8af383a8be8932f1d6/flatfile-black.svg',
-  //             },
-  //           },
-  //         },
-  //       },
-  //       documents: [
-  //         {
-  //           title: 'Welcome',
-  //           body: `<div>
-  //           <h1 style="margin-bottom: 36px;">Welcome!</h1>
-  //           <h2 style="margin-top: 0px; margin-bottom: 12px;">To get started, follow these steps:</h2>
-  //           <h2 style="margin-bottom: 0px;">1. Step One</h2>
-  //           <p style="margin-top: 0px; margin-bottom: 8px;">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
-  //           <h2 style="margin-bottom: 0px;">2. Step Two</h2>
-  //           <p style="margin-top: 0px; margin-bottom: 8px;">Consectetur libero id faucibus nisl tincidunt eget. Pellentesque elit eget gravida cum sociis natoque penatibus et. Tempor orci eu lobortis elementum nibh.</p>
-  //           </div>`,
-  //         },
-  //       ],
-  //     },
-  //     async (event, workbookIds, tick) => {
-  //       const { spaceId } = event.context
-  //       console.log('Space configured', { spaceId, workbookIds })
-  //     }
-  //   )
-  // )
+      await api.jobs.ack(jobId, {
+        info: `Splitting Job`,
+        progress: 10,
+      })
+
+      const { data: workbook } = await api.workbooks.get(workbookId)
+
+      const partsPromises = workbook.sheets.map(async (sheet) => {
+        const {
+          data: {
+            counts: { total },
+          },
+        } = await api.sheets.getRecordCounts(sheet.id)
+
+        const numberOfPages = Math.ceil(total / RECORD_PAGE_SIZE)
+
+        // Return an array of parts for this sheet
+        return Array.from({ length: numberOfPages }, (_, index) => ({
+          sheetId: sheet.id,
+          pageNumber: index + 1,
+          pageSize: RECORD_PAGE_SIZE,
+        }))
+      })
+
+      const parts = (await Promise.all(partsPromises)).flat()
+      await api.jobs.split(jobId, { parts, runInParallel: true })
+
+      await api.jobs.ack(jobId, {
+        info: `Job Split into ${parts.length} parts.`,
+        progress: 20,
+      })
+    }
+  )
+
+  listener.on(
+    'job:ready',
+    { job: 'workbook:submitActionFg', isPart: true },
+    async (event: FlatfileEvent) => {
+      const { jobId, workbookId } = event.context
+      const { data: workbook } = await api.workbooks.get(workbookId)
+
+      const job = await api.jobs.get(jobId)
+      const { sheetId, pageNumber } = job.data.partData
+
+      const { data: sheet } = await api.sheets.get(sheetId)
+
+      const records = await getRecordsRaw(sheetId, {
+        pageNumber,
+        pageSize: RECORD_PAGE_SIZE,
+        filter: 'valid',
+      })
+
+      const sheetExport = {
+        ...sheet,
+        records,
+      }
+
+      try {
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            workbook: {
+              ...workbook,
+              sheets: [sheetExport],
+            },
+          }),
+        })
+
+        if (response.status === 200) {
+          await api.jobs.complete(jobId, {
+            outcome: {
+              message: `Data was successfully submitted to ${url}.`,
+            },
+          })
+          return
+        } else {
+          await api.jobs.fail(jobId, {
+            outcome: {
+              message: `Data was not successfully submitted to the provided webhook. Status: ${response.status} ${response.statusText}`,
+            },
+          })
+          return
+        }
+      } catch (error) {
+        await api.jobs.fail(jobId, {
+          outcome: { message: `Error posting data to webhook` },
+        })
+        return
+      }
+    }
+  )
+
+  listener.on(
+    'job:parts-completed',
+    { job: 'workbook:submitActionFg', isPart: false },
+    async (event: FlatfileEvent) => {
+      const { jobId } = event.context
+
+      await api.jobs.complete(jobId, {
+        outcome: {
+          message: 'This job is now complete.',
+        },
+      })
+    }
+  )
 }
