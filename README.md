@@ -1,11 +1,11 @@
-# Flatfile headless playground
+# Flatfile Headless Playground
 
-## Getting started
-Start by copying the `.env.example` file to `.env` and fill in the values.
+## Development
+Start by copying the `.env.example` file to `.env.prod` and fill in the values.
 
-Then, run `npm install` to install the dependencies.
+Then, run `ni` to install the dependencies.
 
-Finally, run `npm run dev` to start the development server.
+Finally, run `nr dev:prod` to start the development server.
 
 ## Deploying
-To deploy to Flatfile, run `npm run deploy`.
+To deploy to platform.flatfile.com, run `nr deploy:prod`. To deploy to a new agent, run `nr deploy:prod -- -s <agent-name>`.

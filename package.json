@@ -4,13 +4,30 @@
   "description": "",
   "main": "src/index.ts",
   "scripts": {
-    "dev": "node --inspect node_modules/.bin/flatfile develop",
-    "deploy": "flatfile deploy"
+    "dev": "node --enable-source-maps --inspect ./node_modules/.bin/flatfile develop",
+    "dev:local": "dotenvx run --env-file=.env.local -- npm run dev",
+    "dev:staging": "dotenvx run --env-file=.env.staging -- npm run dev",
+    "dev:prod": "dotenvx run --env-file=.env.prod -- npm run dev",
+    "deploy": "flatfile deploy",
+    "deploy:local": "dotenvx run --env-file=.env.local -- npm run deploy",
+    "deploy:staging": "dotenvx run --env-file=.env.staging -- npm run deploy",
+    "deploy:prod": "dotenvx run --env-file=.env.prod -- npm run deploy",
+    "list": "flatfile list",
+    "list:local": "dotenvx run --env-file=.env.local -- npm run list",
+    "list:staging": "dotenvx run --env-file=.env.staging -- npm run list",
+    "list:prod": "dotenvx run --env-file=.env.prod -- npm run list",
+    "delete": "flatfile delete",
+    "delete:local": "dotenvx run --env-file=.env.local -- npm run delete",
+    "delete:staging": "dotenvx run --env-file=.env.staging -- npm run delete",
+    "delete:prod": "dotenvx run --env-file=.env.prod -- npm run delete"
   },
   "author": "Carl Brugger",
   "license": "ISC",
   "dependencies": {
     "@flatfile/listener": "^1.0.2",
     "flatfile": "^3.6.4"
+  },
+  "devDependencies": {
+    "@dotenvx/dotenvx": "^0.34.0"
   }
 }

@@ -5,7 +5,7 @@ export default async function (listener: FlatfileListener) {
     console.log(event.target)
   })
 
-  // Plugin example:
+  // Record hook example:
   // listener.use(
   //   bulkRecordHook(
   //     'oneHundred',
@@ -23,7 +23,7 @@ export default async function (listener: FlatfileListener) {
   //   )
   // )
 
-  // Namespace example:
+  // Configure space example:
   // listener.namespace(
   //   ['space:getting-started'],
   //   configureSpace(
