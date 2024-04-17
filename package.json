@@ -10,7 +10,7 @@
   "author": "Carl Brugger",
   "license": "ISC",
   "dependencies": {
-    "@flatfile/listener": "^1.0.0",
-    "flatfile": "^3.5.14"
+    "@flatfile/listener": "^1.0.2",
+    "flatfile": "^3.6.4"
   }
 }
