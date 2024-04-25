@@ -25,9 +25,9 @@
   "license": "ISC",
   "dependencies": {
     "@flatfile/listener": "^1.0.2",
-    "flatfile": "^3.6.4"
+    "flatfile": "^3.6.2"
   },
   "devDependencies": {
-    "@dotenvx/dotenvx": "^0.34.0"
+    "@dotenvx/dotenvx": "^0.35.1"
   }
 }
