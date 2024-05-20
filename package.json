@@ -24,10 +24,12 @@
   "author": "Carl Brugger",
   "license": "ISC",
   "dependencies": {
-    "@flatfile/listener": "^1.0.2",
-    "flatfile": "^3.6.2"
+    "@flatfile/api": "^1.8.9",
+    "@flatfile/listener": "^1.0.4",
+    "@flatfile/plugin-space-configure": "^0.5.1",
+    "flatfile": "^3.6.7"
   },
   "devDependencies": {
-    "@dotenvx/dotenvx": "^0.35.1"
+    "@dotenvx/dotenvx": "^0.42.0"
   }
 }
