@@ -44,6 +44,7 @@
     "@dotenvx/dotenvx": "^1.45.1",
     "@total-typescript/tsconfig": "^1.0.4",
     "@types/bun": "^1.2.0",
+    "npm-check-updates": "^18.0.1",
     "typescript": "^5.8.3"
   }
 }

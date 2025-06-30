@@ -116,6 +116,11 @@ bun run deploy:prod
 - `bun run fix:format` - Auto-fix formatting
 - `bun run fix:lint` - Auto-fix linting issues
 
+### Dependency Management
+- `ncu` - Check for updates to dependencies
+- `ncu -u` - Update dependencies to the latest versions
+- `bun install` - Install the updated dependencies
+
 ## Dependencies
 
 ### Core Dependencies
