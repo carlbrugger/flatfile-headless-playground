@@ -5,7 +5,6 @@
   "author": "Carl Brugger",
   "license": "ISC",
   "main": "src/index.ts",
-  "type": "module",
   "scripts": {
     "dev": "node --enable-source-maps --inspect ./node_modules/.bin/flatfile develop",
     "dev:local": "dotenvx run --env-file=.env.local -- npm run dev",
