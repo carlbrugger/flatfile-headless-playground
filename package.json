@@ -1,8 +1,11 @@
 {
   "name": "flatfile-headless-playground",
   "version": "1.0.0",
-  "description": "",
+  "description": "A simple example listener for Flatfile",
+  "author": "Carl Brugger",
+  "license": "ISC",
   "main": "src/index.ts",
+  "type": "module",
   "scripts": {
     "dev": "node --enable-source-maps --inspect ./node_modules/.bin/flatfile develop",
     "dev:local": "dotenvx run --env-file=.env.local -- npm run dev",
@@ -19,17 +22,28 @@
     "delete": "flatfile delete",
     "delete:local": "dotenvx run --env-file=.env.local -- npm run delete",
     "delete:staging": "dotenvx run --env-file=.env.staging -- npm run delete",
-    "delete:prod": "dotenvx run --env-file=.env.prod -- npm run delete"
+    "delete:prod": "dotenvx run --env-file=.env.prod -- npm run delete",
+    "check:all": "biome check && bun check:types",
+    "check:format": "biome format",
+    "check:lint": "biome lint",
+    "check:types": "tsc --noEmit",
+    "fix:all": "biome check --write",
+    "fix:format": "biome format --write .",
+    "fix:lint": "biome lint --write ."
   },
-  "author": "Carl Brugger",
-  "license": "ISC",
   "dependencies": {
     "@flatfile/api": "^1.8.9",
-    "@flatfile/listener": "^1.0.4",
-    "@flatfile/plugin-space-configure": "^0.5.1",
-    "flatfile": "^3.6.7"
+    "@flatfile/listener": "^1.1.2",
+    "@flatfile/plugin-record-hook": "^2.0.2",
+    "@flatfile/plugin-space-configure": "^0.10.1",
+    "@flatfile/plugin-xml-extractor": "0.7.1",
+    "flatfile": "^3.11.0"
   },
   "devDependencies": {
-    "@dotenvx/dotenvx": "^0.42.0"
+    "@biomejs/biome": "^2.0.6",
+    "@dotenvx/dotenvx": "^1.45.1",
+    "@total-typescript/tsconfig": "^1.0.4",
+    "@types/bun": "^1.2.0",
+    "typescript": "^5.8.3"
   }
 }

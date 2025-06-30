@@ -1,4 +1,4 @@
-import { Flatfile } from '@flatfile/api'
+import type { Flatfile } from '@flatfile/api'
 
 export const fieldTypesSheet: Flatfile.SheetConfig = {
   name: 'Field Types',

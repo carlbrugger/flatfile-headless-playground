@@ -1,7 +1,8 @@
-import type { Flatfile } from '@flatfile/api'
 import type { FlatfileEvent, FlatfileListener } from '@flatfile/listener'
 
+import { bulkRecordHook, type FlatfileRecord } from '@flatfile/plugin-record-hook'
 import { configureSpace } from '@flatfile/plugin-space-configure'
+import { XMLExtractor } from '@flatfile/plugin-xml-extractor'
 import { contactsSheet } from './blueprints/sheets/contacts'
 
 export default async function (listener: FlatfileListener) {
@@ -9,23 +10,25 @@ export default async function (listener: FlatfileListener) {
     console.log(event.target)
   })
 
+  listener.use(XMLExtractor())
+
   // Record hook example:
-  // listener.use(
-  //   bulkRecordHook(
-  //     'oneHundred',
-  //     async (records: FlatfileRecord[]) => {
-  //       for (const record of records) {
-  //         const email = record.get('email') as string
-  //         const validEmailAddress = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  //         if (!validEmailAddress.test(email)) {
-  //           record.addError('email', 'Error: Invalid email address')
-  //         }
-  //       }
-  //       return records
-  //     },
-  //     { debug: true }
-  //   )
-  // )
+  listener.use(
+    bulkRecordHook(
+      'contacts',
+      async (records: FlatfileRecord[]) => {
+        for (const record of records) {
+          const email = record.get('email') as string
+          const validEmailAddress = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+          if (!validEmailAddress.test(email)) {
+            record.addError('email', 'Error: Invalid email address')
+          }
+        }
+        return records
+      },
+      { debug: true },
+    ),
+  )
 
   // Configure space example:
   listener.namespace(
@@ -47,12 +50,6 @@ export default async function (listener: FlatfileListener) {
                 type: 'string',
                 description: 'Submit this data to a webhook.',
                 primary: true,
-              },
-              {
-                operation: 'downloadWorkbook',
-                mode: 'foreground',
-                label: 'Download Workbook',
-                description: 'Downloads Excel Workbook of Data',
               },
             ],
           },
@@ -83,10 +80,10 @@ export default async function (listener: FlatfileListener) {
           },
         ],
       },
-      async (event, workbookIds, tick) => {
+      async (event, workbookIds, _tick) => {
         const { spaceId } = event.context
         console.log('Space configured', { spaceId, workbookIds })
-      }
-    )
+      },
+    ),
   )
 }
