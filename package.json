@@ -10,18 +10,22 @@
     "dev:local": "bun run --env-file=.env.local dev",
     "dev:staging": "bun run --env-file=.env.staging dev",
     "dev:prod": "bun run --env-file=.env.prod dev",
+    "dev:ca": "bun run --env-file=.env.ca dev",
     "deploy": "flatfile deploy",
     "deploy:local": "bun run --env-file=.env.local deploy",
     "deploy:staging": "bun run --env-file=.env.staging deploy",
     "deploy:prod": "bun run --env-file=.env.prod deploy",
+    "deploy:ca": "bun run --env-file=.env.ca deploy",
     "list": "flatfile list",
     "list:local": "bun run --env-file=.env.local list",
     "list:staging": "bun run --env-file=.env.staging list",
     "list:prod": "bun run --env-file=.env.prod list",
+    "list:ca": "bun run --env-file=.env.ca list",
     "delete": "flatfile delete",
     "delete:local": "bun run --env-file=.env.local delete",
     "delete:staging": "bun run --env-file=.env.staging delete",
     "delete:prod": "bun run --env-file=.env.prod delete",
+    "delete:ca": "bun run --env-file=.env.ca delete",
     "check:all": "biome check && bun check:types",
     "check:format": "biome format",
     "check:lint": "biome lint",
@@ -31,18 +35,20 @@
     "fix:lint": "biome lint --write ."
   },
   "dependencies": {
-    "@flatfile/api": "^1.8.9",
+    "@flatfile/api": "^1.22.0",
+    "@flatfile/http-logger": "^1.0.4",
     "@flatfile/listener": "^1.1.2",
-    "@flatfile/plugin-record-hook": "^2.0.2",
+    "@flatfile/plugin-export-workbook": "^5.2.3",
+    "@flatfile/plugin-record-hook": "^2.0.3",
     "@flatfile/plugin-space-configure": "^0.10.1",
-    "@flatfile/plugin-xml-extractor": "0.7.1",
-    "flatfile": "^3.11.0"
+    "@flatfile/plugin-xlsx-extractor": "4.0.9",
+    "flatfile": "^3.11.1"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.0.6",
+    "@biomejs/biome": "^2.2.2",
     "@total-typescript/tsconfig": "^1.0.4",
-    "@types/bun": "^1.2.17",
-    "npm-check-updates": "^18.0.1",
-    "typescript": "^5.8.3"
+    "@types/bun": "^1.2.21",
+    "npm-check-updates": "^18.0.3",
+    "typescript": "^5.9.2"
   }
 }
