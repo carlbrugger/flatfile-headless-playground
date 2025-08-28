@@ -2,6 +2,8 @@ import api, { type Flatfile } from '@flatfile/api'
 import type { FlatfileListener } from '@flatfile/listener'
 import { exportWorkbookPlugin } from '@flatfile/plugin-export-workbook'
 import '@flatfile/http-logger/init'
+import { configureSpace } from '@flatfile/plugin-space-configure'
+import { contactsSheet } from './blueprints'
 
 export default async function (listener: FlatfileListener) {
   // First: Cache the sheets to avoid excessive API calls
@@ -44,6 +46,25 @@ export default async function (listener: FlatfileListener) {
           return columnName
         }
       },
+    }),
+  )
+  listener.use(
+    configureSpace({
+      workbooks: [
+        {
+          name: 'Sandbox',
+          sheets: [contactsSheet],
+          actions: [
+            {
+              operation: 'downloadWorkbook',
+              mode: 'foreground',
+              label: 'Download Workbook',
+              description: 'Download the workbook as an Excel file',
+              primary: true,
+            },
+          ],
+        },
+      ],
     }),
   )
 }
